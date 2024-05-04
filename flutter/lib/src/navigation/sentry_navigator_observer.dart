@@ -368,6 +368,25 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 }
 
+String? parseBeamPage(String? input) {
+
+  if(input == null) return null;
+  // Removing unnecessary characters and splitting the string into parts
+  String cleanedInput = input.replaceAll('"', '');
+  List<String> parts = cleanedInput.split(', ');
+
+  List<String> paths = parts[1].substring(1, parts[1].length - 1).split(',');
+
+  return parseProjectInfo(paths.first).join("/");
+}
+
+List<String> parseProjectInfo(String input) {
+  // Removing unnecessary characters and splitting the string into parts
+  String cleanedInput = input.replaceAll('<', '').replaceAll('>', '');
+  List<String> parts = cleanedInput.split(' - ');
+
+  return parts;
+}
 /// This class makes it easier to record breadcrumbs for events of Flutters
 /// NavigationObserver by accepting
 /// [RouteSettings].
@@ -388,9 +407,10 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
     return RouteObserverBreadcrumb._(
-      from: from?.name,
+      from:parseBeamPage(from?.toString()) ,
       fromArgs: fromArgs,
-      to: to?.name,
+      to: parseBeamPage(to?.toString()) ,
+
       toArgs: toArgs,
       navigationType: navigationType,
       level: level,
@@ -398,6 +418,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
       data: data,
     );
   }
+
 
   RouteObserverBreadcrumb._({
     required String navigationType,
